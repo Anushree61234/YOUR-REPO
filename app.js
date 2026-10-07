@@ -1,11 +1,13 @@
 const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config();  // ← ADD THIS
 
 const express = require('express');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const {default: mongoose} = require('mongoose');
 const multer = require('multer');
-const DB_PATH = "mongodb+srv://anushreerajput207_db_user:root123@anushree.bqh8rol.mongodb.net/airbnb?appName=Anushree";
+const DB_PATH = process.env.MONGODB_URI;
 
 const hostRouter = require('./routes/hostRouter');
 const storeRouter = require('./routes/storeRouter');
@@ -68,7 +70,7 @@ app.use(express.static(path.join(rootDir,'public')));
 app.use("/uploads", express.static(path.join(rootDir, "uploads")));
 
 app.use(session({
-  secret: "Anushree Session Learning",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   store
