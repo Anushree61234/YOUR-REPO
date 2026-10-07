@@ -71,4 +71,10 @@ bookingRouter.get('/booking-history', (req, res, next) => {
   next();
 }, bookingController.getHostBookingHistory);
 
+// Review Routes
+bookingRouter.get('/bookings/:bookingId/review', bookingController.getReviewForm);
+bookingRouter.post('/bookings/:bookingId/review', bookingController.postReview);
+bookingRouter.get('/homes/:homeId/reviews', bookingController.getHomeReviews);
+
+
 module.exports = bookingRouter;

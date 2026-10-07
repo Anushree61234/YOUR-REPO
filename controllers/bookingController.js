@@ -2,7 +2,7 @@ const { validationResult } = require('express-validator');
 const Booking = require('../models/booking');
 const Home = require('../models/home');
 const User = require('../models/user');
-
+const Review = require('../models/review');
 // ============ GUEST ROUTES ============
 
 /**
@@ -375,5 +375,85 @@ exports.getHostBookingHistory = async (req, res) => {
   } catch (err) {
     console.error('Error fetching booking history:', err);
     res.status(500).send('Error fetching booking history');
+  }
+};
+
+
+// Review System
+
+exports.getReviewForm = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await Booking.findById(bookingId).populate('homeId');
+    
+    // Check if guest owns this booking
+    if(booking.guestId.toString() !== req.session.user.id) {
+      return res.status(403).send('Unauthorized');
+    }
+    
+    // Check if checkout date has passed
+    if(new Date() < new Date(booking.checkOutDate)) {
+      return res.status(422).send('You can only review after checkout');
+    }
+    
+    // Check if already reviewed
+    const existingReview = await Review.findOne({ bookingId });
+    if(existingReview) {
+      return res.status(422).send('You already reviewed this booking');
+    }
+    
+    res.render('store/reviewForm', { booking, pageTitle: 'Leave a Review', currentPage: 'bookings', user: req.session.user });
+  } catch(err) {
+    console.error(err);
+    res.status(500).send('Error loading review form');
+  }
+};
+
+exports.postReview = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const { rating, comment } = req.body;
+    
+    const booking = await Booking.findById(bookingId);
+    
+    // Validations
+    if(!booking) return res.status(404).send('Booking not found');
+    if(booking.guestId.toString() !== req.session.user.id) return res.status(403).send('Unauthorized');
+    if(new Date() < new Date(booking.checkOutDate)) return res.status(422).send('Cannot review before checkout');
+    
+    const existingReview = await Review.findOne({ bookingId });
+    if(existingReview) return res.status(422).send('Already reviewed');
+    
+    // Save review
+    const review = new Review({
+      guestId: req.session.user.id,
+      homeId: booking.homeId,
+      bookingId,
+      rating: parseInt(rating),
+      comment
+    });
+    
+    await review.save();
+    
+    // Update home rating (average of all reviews)
+    const allReviews = await Review.find({ homeId: booking.homeId });
+    const avgRating = (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1);
+    await Home.findByIdAndUpdate(booking.homeId, { rating: avgRating });
+    
+    res.redirect('/my-bookings?success=Review+submitted+successfully');
+  } catch(err) {
+    console.error(err);
+    res.status(500).send('Error submitting review');
+  }
+};
+
+exports.getHomeReviews = async (req, res) => {
+  try {
+    const { homeId } = req.params;
+    const reviews = await Review.find({ homeId }).populate('guestId', 'username');
+    res.json(reviews);
+  } catch(err) {
+    console.error(err);
+    res.status(500).send('Error fetching reviews');
   }
 };

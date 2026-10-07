@@ -23,7 +23,7 @@ const homeSchema = mongoose.Schema({
   },
   rating: {
     type: Number,
-    required: [true, 'Rating is required'],
+    default: 0,
     min: [0, 'Rating cannot be less than 0'],
     max: [5, 'Rating cannot be more than 5']
   },

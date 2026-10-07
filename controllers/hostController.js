@@ -28,7 +28,7 @@ exports.getEditHome = (req, res) => {
 };
 
 exports.postAddHome = (req, res) => {
-  const { houseName, price, location, rating, description } = req.body;
+  const { houseName, price, location, description } = req.body;
 
   if(!req.file){
     return res.status(422).send("No image provided");
@@ -41,7 +41,6 @@ exports.postAddHome = (req, res) => {
     hostId,
     houseName, 
     price, 
-    location, 
     rating, 
     photo,  // Now uses forward slashes
     description
@@ -66,11 +65,10 @@ exports.getHostHome = (req, res) => {
 };
 
 exports.postEditHome = (req, res) => {
-  const { id,houseName, price, location, rating, description } = req.body;
+  const { id,houseName, price, rating, description } = req.body;
   Home.findById(id).then((home)=>{
     home.houseName = houseName;
     home.price = price;
-    home.location  = location;
     home.rating = rating;
     home.description = description;
 
