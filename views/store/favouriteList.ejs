@@ -1,0 +1,82 @@
+<%- include("../partials/head") %>
+<%- include("../partials/navbar") %>
+
+<div class="max-w-6xl mx-auto px-4 py-12">
+
+  <h1 class="text-4xl font-bold mb-2">My Favourite Homes</h1>
+  <p class="text-gray-600 mb-8">Your collection of loved properties.</p>
+
+  <% if (favouriteHomes.length === 0) { %>
+    <div class="text-center py-16">
+      <p class="text-gray-500 text-lg">No favourite homes yet.</p>
+      <a href="/homes" class="text-red-500 hover:text-red-600 font-semibold mt-4 inline-block">
+        Explore Homes
+      </a>
+    </div>
+
+  <% } else { %>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <% favouriteHomes.forEach(home => { %>
+
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-xl transition">
+
+          <img 
+            src="/<%= home.photo %>" 
+            alt="<%= home.houseName %>"
+            class="w-full h-64 object-cover"
+          >
+
+          <div class="p-5">
+
+            <h2 class="text-xl font-bold mb-2"><%= home.houseName %></h2>
+
+            <p class="text-gray-600 text-sm mb-2 flex items-center">
+              <span class="text-red-500 mr-2">📍</span>
+              <%= home.location %>
+            </p>
+
+            <p class="text-lg font-semibold text-red-500 mb-4">
+              ₹<%= home.price %> / night
+            </p>
+
+            <!-- Buttons -->
+            <div style="display: flex; gap: 20px; margin-top: 16px;">
+
+              <a
+                href="/homes/<%= home._id %>"
+                style="display: block; background-color: #3b82f6; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none;"
+              >
+                View Details
+              </a>
+
+              <form
+                action="/favourites/delete/<%= home._id %>"
+                method="POST"
+                onsubmit="return confirm('Remove from favourites?');"
+              >
+                <button
+                  type="submit"
+                  style="background-color: #ef4444; color: white; padding: 10px 20px; border-radius: 8px; border: none;"
+                >
+                  Remove
+                </button>
+              </form>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      <% }) %>
+
+    </div>
+
+  <% } %>
+
+</div>
+
+</body>
+</html>

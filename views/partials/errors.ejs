@@ -1,0 +1,10 @@
+<% if (errors && errors.length > 0) { %>
+
+  <div class="mb-5">
+    <% errors.forEach(error => { %>
+      <p class="text-red-500 text-sm mb-1">
+        <%= error %>
+      </p>
+    <% }) %>
+  </div>
+<% } %>

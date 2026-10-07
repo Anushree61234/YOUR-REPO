@@ -1,0 +1,160 @@
+<%- include("../partials/head") %>
+<%- include("../partials/navbar") %>
+
+<body class="bg-gray-50 min-h-screen">
+
+  <div class="max-w-4xl mx-auto px-6 py-12">
+
+    <!-- Back Button -->
+    <a href="/homes" class="text-red-500 hover:text-red-600 font-semibold mb-6 inline-block transition">
+      ← Back to Homes
+    </a>
+
+    <!-- Main Card -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+
+      <!-- Image Section -->
+      <div class="relative">
+        <img 
+          src="/<%= home.photo %>" 
+          alt="<%= home.houseName %>"
+          class="w-full h-96 object-cover"
+          onerror="this.src='https://placehold.co/800x400?text=No+Image'"
+        >
+        
+        <!-- Favorite Button (Top Right) -->
+        <div class="absolute top-4 right-4">
+          <form action="/favourites" method="POST" class="inline">
+            <input type="hidden" name="id" value="<%= home._id %>">
+            <button
+              type="submit"
+              class="bg-white text-red-500 px-4 py-2 rounded-full shadow-md hover:shadow-lg transition font-semibold flex items-center gap-2"
+            >
+              ❤️ Add to Favourites
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Content Section -->
+      <div class="p-8">
+
+        <!-- Title & Location -->
+        <div class="mb-6">
+          <h1 class="text-4xl font-bold text-gray-900 mb-2">
+            <%= home.houseName %>
+          </h1>
+          <p class="text-gray-600 text-lg flex items-center gap-2">
+            📍 <%= home.location %>
+          </p>
+        </div>
+
+        <!-- Price & Rating Row -->
+        <div class="flex items-center justify-between pb-6 border-b border-gray-200">
+          
+          <!-- Price -->
+          <div>
+            <p class="text-red-500 text-3xl font-bold">
+              ₹<%= home.price %>
+            </p>
+            <p class="text-gray-600 text-sm">per night</p>
+          </div>
+
+          <!-- Rating -->
+          <div class="flex items-center gap-3">
+            <div class="text-right">
+              <div class="flex items-center gap-1">
+                <span class="text-yellow-400 text-2xl">★</span>
+                <span class="text-2xl font-bold text-gray-900"><%= home.rating %></span>
+              </div>
+              <p class="text-gray-500 text-sm">Highly Rated</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Description -->
+        <% if (home.description) { %>
+          <div class="my-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">About this home</h2>
+            <p class="text-gray-700 leading-relaxed text-base">
+              <%= home.description %>
+            </p>
+          </div>
+        <% } %>
+
+        <!-- Amenities/Info Grid -->
+        <div class="my-8 p-6 bg-gray-50 rounded-lg">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Property Details</h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <p class="text-gray-600 text-sm">Price</p>
+              <p class="font-semibold text-gray-900">₹<%= home.price %>/night</p>
+            </div>
+            <div>
+              <p class="text-gray-600 text-sm">Location</p>
+              <p class="font-semibold text-gray-900"><%= home.location %></p>
+            </div>
+            <div>
+              <p class="text-gray-600 text-sm">Rating</p>
+              <p class="font-semibold text-gray-900"><%= home.rating %>/5 ⭐</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col md:flex-row gap-4 mt-12">
+
+          <!-- Book Now Button -->
+          <% if (isLoggedIn && user.userType === 'guest') { %>
+            <!-- Guest - Can Book -->
+            <a 
+              href="/bookings/create/<%= home._id %>"
+              class="flex-1 bg-red-500 text-white py-4 px-6 rounded-lg font-bold text-lg text-center hover:bg-red-600 transition shadow-md hover:shadow-lg"
+            >
+              📅 Book Now
+            </a>
+
+          <% } else if (!isLoggedIn) { %>
+            <!-- Not Logged In - Direct to Login -->
+            <a 
+              href="/login"
+              class="flex-1 bg-red-500 text-white py-4 px-6 rounded-lg font-bold text-lg text-center hover:bg-red-600 transition shadow-md hover:shadow-lg"
+            >
+              📅 Login to Book
+            </a>
+
+          <% } else if (user.userType === 'host') { %>
+            <!-- Host - Cannot book their own property -->
+            <div class="flex-1 bg-gray-200 text-gray-600 py-4 px-6 rounded-lg font-bold text-lg text-center cursor-not-allowed">
+              👤 You're viewing as a Host
+            </div>
+
+          <% } %>
+
+          <!-- View Similar Homes -->
+          <a 
+            href="/homes"
+            class="flex-1 border-2 border-red-500 text-red-500 py-4 px-6 rounded-lg font-bold text-lg text-center hover:bg-red-50 transition"
+          >
+            🏠 View More Homes
+          </a>
+
+        </div>
+
+        <!-- Contact Host Info (Optional) -->
+        <div class="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+          <p class="text-blue-900 text-sm">
+            <strong>💡 Tip:</strong> When you book, you can send a message to the host with any questions or special requests!
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+
+</html>

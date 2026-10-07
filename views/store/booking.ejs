@@ -1,0 +1,263 @@
+<%- include("../partials/head") %>
+
+<%
+  // Safe defaults so the template never crashes if a variable isn't passed
+  const errorList = locals.errors || [];
+  const old = locals.oldInput || {};
+
+  // Today's date in local time (toISOString alone gives UTC, which can be "yesterday" in IST)
+  const now = new Date();
+  const today = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .split("T")[0];
+%>
+
+<body class="bg-gray-100 min-h-screen">
+
+  <%- include("../partials/navbar") %>
+
+  <div class="max-w-4xl mx-auto px-6 py-12">
+
+    <!-- Back Button -->
+    <a href="/homes/<%= homeId %>"
+       class="text-red-500 hover:text-red-600 font-semibold mb-6 inline-block transition">
+      ← Back to Home
+    </a>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+      <!-- Booking Form -->
+      <div class="md:col-span-2">
+
+        <div class="bg-white rounded-xl shadow-lg p-8">
+
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Book This Home</h1>
+
+          <p class="text-gray-600 mb-6">
+            Select your dates and complete your booking request.
+          </p>
+
+          <!-- Error Messages -->
+          <% if (errorList.length > 0) { %>
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <h3 class="text-red-800 font-semibold mb-2">
+                Please fix these errors:
+              </h3>
+              <ul class="list-disc list-inside text-red-700 space-y-1">
+                <% errorList.forEach(function (error) { %>
+                  <li class="text-sm"><%= error %></li>
+                <% }); %>
+              </ul>
+            </div>
+          <% } %>
+
+          <!-- Booking Form -->
+          <form action="/bookings/create/<%= homeId %>" method="POST" class="space-y-6">
+
+            <!-- Check-in Date -->
+            <div>
+              <label for="checkInDate" class="block text-gray-700 font-semibold mb-2">
+                Check-in Date *
+              </label>
+              <input
+                type="date"
+                id="checkInDate"
+                name="checkInDate"
+                value="<%= old.checkInDate || '' %>"
+                min="<%= today %>"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                required
+              >
+              <p class="text-xs text-gray-500 mt-1">Must be today or in the future</p>
+            </div>
+
+            <!-- Check-out Date -->
+            <div>
+              <label for="checkOutDate" class="block text-gray-700 font-semibold mb-2">
+                Check-out Date *
+              </label>
+              <input
+                type="date"
+                id="checkOutDate"
+                name="checkOutDate"
+                value="<%= old.checkOutDate || '' %>"
+                min="<%= today %>"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                required
+              >
+              <p class="text-xs text-gray-500 mt-1">Must be after check-in date</p>
+            </div>
+
+            <!-- Guest Message -->
+            <div>
+              <label for="guestMessage" class="block text-gray-700 font-semibold mb-2">
+                Message to Host (Optional)
+              </label>
+              <textarea
+                id="guestMessage"
+                name="guestMessage"
+                rows="4"
+                maxlength="500"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                placeholder="Let the host know about your trip, special requests, etc."
+              ><%= old.guestMessage || '' %></textarea>
+              <p class="text-xs text-gray-500 mt-1">Max 500 characters</p>
+            </div>
+
+            <!-- Terms -->
+            <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+              <input
+                type="checkbox"
+                id="agreeTerms"
+                name="agreeTerms"
+                class="mt-1 w-4 h-4 accent-red-500"
+                required
+              >
+              <label for="agreeTerms" class="text-sm text-gray-700">
+                I understand this booking is subject to host approval.
+                Once approved, I can cancel anytime before check-in.
+              </label>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4 pt-4 border-t">
+              <a href="/homes/<%= homeId %>"
+                 class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-center text-gray-700 font-semibold hover:bg-gray-50 transition">
+                Cancel
+              </a>
+              <button
+                type="submit"
+                class="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition">
+                Request Booking
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+      <!-- Home Preview -->
+      <div class="md:col-span-1">
+
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden sticky top-6">
+
+          <!-- Image -->
+          <img
+            src="/<%= home.photo %>"
+            alt="<%= home.houseName %>"
+            class="w-full h-48 object-cover"
+            onerror="this.onerror=null; this.src='https://placehold.co/400x300?text=No+Image'"
+          >
+
+          <!-- Details -->
+          <div class="p-6">
+
+            <h3 class="text-lg font-bold text-gray-900 mb-1"><%= home.houseName %></h3>
+
+            <p class="text-gray-600 text-sm mb-3 flex items-center gap-1">
+              📍 <%= home.location %>
+            </p>
+
+            <!-- Price -->
+            <div class="py-3 border-t border-b border-gray-200 mb-4">
+              <p class="text-red-500 text-2xl font-bold">₹<%= home.price %></p>
+              <p class="text-gray-600 text-sm">per night</p>
+            </div>
+
+            <!-- Rating -->
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-yellow-400 text-lg">★</span>
+              <span class="font-semibold text-gray-900"><%= home.rating %></span>
+              <span class="text-gray-600 text-sm">Highly Rated</span>
+            </div>
+
+            <!-- Price Breakdown (price is passed to JS via a data attribute) -->
+            <div class="bg-gray-50 p-4 rounded-lg" id="priceBreakdown" data-price="<%= home.price %>">
+
+              <div class="flex justify-between mb-2 text-sm">
+                <span class="text-gray-600">Rate per night:</span>
+                <span class="font-semibold">₹<%= home.price %></span>
+              </div>
+
+              <div class="flex justify-between mb-2 text-sm border-b pb-2">
+                <span class="text-gray-600">Number of nights:</span>
+                <span class="font-semibold" id="numberOfNights">-</span>
+              </div>
+
+              <div class="flex justify-between text-lg font-bold">
+                <span>Total:</span>
+                <span class="text-red-500" id="totalPrice">-</span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Price Calculator Script (plain JS, no EJS tags inside) -->
+  <script>
+    const pricePerNight = Number(
+      document.getElementById("priceBreakdown").dataset.price
+    );
+
+    const checkInInput = document.getElementById("checkInDate");
+    const checkOutInput = document.getElementById("checkOutDate");
+    const numberOfNightsSpan = document.getElementById("numberOfNights");
+    const totalPriceSpan = document.getElementById("totalPrice");
+
+    function toLocalISO(date) {
+      return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split("T")[0];
+    }
+
+    function calculatePrice() {
+      if (!checkInInput.value || !checkOutInput.value) return;
+
+      const checkIn = new Date(checkInInput.value);
+      const checkOut = new Date(checkOutInput.value);
+      const nights = Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+      if (nights > 0) {
+        numberOfNightsSpan.textContent = nights;
+        totalPriceSpan.textContent = "₹" + (nights * pricePerNight).toLocaleString("en-IN");
+      } else {
+        numberOfNightsSpan.textContent = "-";
+        totalPriceSpan.textContent = "-";
+      }
+    }
+
+    checkInInput.addEventListener("change", function () {
+      if (!this.value) return;
+
+      const nextDay = new Date(this.value);
+      nextDay.setDate(nextDay.getDate() + 1);
+      const minCheckOut = toLocalISO(nextDay);
+
+      checkOutInput.min = minCheckOut;
+
+      // Clear check-out if it's now invalid
+      if (checkOutInput.value && checkOutInput.value < minCheckOut) {
+        checkOutInput.value = "";
+      }
+
+      calculatePrice();
+    });
+
+    checkOutInput.addEventListener("change", calculatePrice);
+
+    // Recalculate on page load (e.g. after a validation error re-renders the form)
+    calculatePrice();
+  </script>
+
+</body>
+</html>
