@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "tailwind": "tailwindcss -i ./views/input.css -o ./public/output.css --watch",
-    "start": "nodemon app.js & npm run tailwind"
-  },
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "tailwind": "tailwindcss -i ./views/input.css -o ./public/output.css --watch",
+  "start": "node app.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
