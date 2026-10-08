@@ -109,15 +109,18 @@ app.use("/host", (req, res, next) => {
 
 app.use(errorsController.pageNotFound);
 
-const PORT = 3000;
-mongoose.connect(DB_PATH).then(() =>{
+const PORT = process.env.PORT || 3000;
+
+mongoose.connect(DB_PATH).then(() => {
   console.log('Connected to Mongo');
-  app.listen(PORT, () =>{
-  console.log(`server running on address http://localhost:${PORT}`);
-}); 
-}).catch(err =>{
-  console.log("Error while connecting to Mongo",err);
-})
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+
+}).catch(err => {
+  console.log("Error while connecting to Mongo", err);
+});
 
 //wow bhaijan apki typing toh bohot fast hai kya kamal ka type karte hai aap kya apko bade hoke ek sarkari typist banana hai
 //meri typing toh bohot fast hai par mera focus utna hi slow hai mein apne project ko chodke yahan bakchodi kar rhi hun yayyy
