@@ -1,17 +1,28 @@
 const express = require('express');
+const multer = require('multer');
 const hostRouter = express.Router();
 
-const hostController = require("../controllers/hostController");
-hostRouter.get("/add-home",hostController.getAddHome);
+const hostController = require('../controllers/hostController');
+const { storage } = require('../config/cloudinary');
 
-hostRouter.post("/add-home",hostController.postAddHome);
+const fileFilter = (req, file, cb) => {
+  cb(null, ['image/png', 'image/jpeg', 'image/webp'].includes(file.mimetype));
+};
 
-hostRouter.get("/hostHome",hostController.getHostHome  );
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
-hostRouter.get("/edit-home/:homeId",hostController.getEditHome);
+hostRouter.get('/add-home', hostController.getAddHome);
+hostRouter.post('/add-home', upload.single('photo'), hostController.postAddHome);
 
-hostRouter.post("/edit-home/:homeId",hostController.postEditHome);
+hostRouter.get('/hostHome', hostController.getHostHome);
 
-hostRouter.post("/delete-home/:homeId",hostController.postDeleteHome);
+hostRouter.get('/edit-home/:homeId', hostController.getEditHome);
+hostRouter.post('/edit-home/:homeId', upload.single('photo'), hostController.postEditHome);
+
+hostRouter.post('/delete-home/:homeId', hostController.postDeleteHome);
 
 module.exports = hostRouter;

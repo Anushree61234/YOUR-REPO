@@ -38,7 +38,8 @@ const homeSchema = mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  photoId: String
 });
 
 module.exports = mongoose.model('Home', homeSchema);
