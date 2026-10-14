@@ -66,12 +66,10 @@
       <div class="space-y-6">
 
         <% bookingList.forEach(function (booking) {
-            const home = booking.homeId || {};
-            const host = booking.hostId || null;
-            const status = statusConfig[booking.status] || statusConfig.cancelled;
-            const checkoutDate = new Date(booking.checkOutDate);
-            const today = new Date();
-            const canCancel = ['pending', 'approved'].includes(booking.status) && today < checkoutDate;
+             const home = booking.homeId || {};
+             const host = booking.hostId || null;
+             const status = statusConfig[booking.status] || statusConfig.cancelled;
+             const canCancel = ['pending', 'approved'].includes(booking.status);
         %>
 
           <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
