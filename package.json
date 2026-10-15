@@ -1,13 +1,14 @@
 {
-  "name": "airbnb_mock",
+  "name": "stayora",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "tailwind": "tailwindcss -i ./views/input.css -o ./public/output.css --watch",
-    "start": "node app.js"
-  },
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "tailwind": "tailwindcss -i ./views/input.css -o ./public/output.css --watch",
+  "build:css": "tailwindcss -i ./views/input.css -o ./public/output.css",
+  "start": "node app.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
