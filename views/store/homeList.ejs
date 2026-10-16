@@ -1,9 +1,11 @@
+<% const homes = locals.registeredHomes || []; %>
+<% const favs = locals.favouriteIds || []; %>
+
 <%- include("../partials/head") %>
 
 <%- include("../partials/navbar") %>
 <body class="bg-gray-100 min-h-screen">
 
-  <!-- Page Header -->
   <section class="max-w-6xl mx-auto px-6 pt-10">
     <h1 class="text-4xl font-bold text-gray-900">Explore Homes</h1>
     <p class="text-gray-600 mt-2">
@@ -11,7 +13,6 @@
     </p>
   </section>
 
-  <!-- Homes Section -->
   <section class="max-w-6xl mx-auto px-6 py-8">
 
     <div class="flex justify-between items-center mb-6">
@@ -19,13 +20,12 @@
         <h2 class="text-2xl font-bold">Available Homes</h2>
         <p class="text-gray-500 text-sm">Choose from our latest listings.</p>
       </div>
-
       <span class="bg-red-100 text-red-600 px-4 py-2 rounded-full font-semibold">
-        <%= registeredHomes.length %> Home<%= registeredHomes.length === 1 ? '' : 's' %>
+        <%= homes.length %> Home<%= homes.length === 1 ? '' : 's' %>
       </span>
     </div>
 
-    <% if (registeredHomes.length === 0) { %>
+    <% if (homes.length === 0) { %>
 
       <div class="text-center py-16 bg-white rounded-xl shadow-lg">
         <p class="text-gray-500 text-lg">No homes available yet.</p>
@@ -35,16 +35,13 @@
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
 
-        <% registeredHomes.forEach((home) => {
-          const isFavourite = (favouriteIds || []).includes(home._id.toString());
+        <% homes.forEach((home) => {
+          const isFavourite = favs.includes(home._id.toString());
         %>
 
-          <!-- Home Card -->
           <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
 
-            <!-- Image Container -->
             <div class="relative">
-
               <img
                 src="<%= home.photo || 'https://placehold.co/400x300?text=No+Image' %>"
                 alt="<%= home.houseName || 'Home' %>"
@@ -53,8 +50,6 @@
               >
 
               <% if (isFavourite) { %>
-
-                <!-- Remove Favourite -->
                 <form action="/favourites/delete/<%= home._id %>" method="POST" class="absolute top-3 right-3 z-10">
                   <input type="hidden" name="redirectTo" value="/">
                   <button
@@ -68,10 +63,7 @@
                     </svg>
                   </button>
                 </form>
-
               <% } else { %>
-
-                <!-- Add Favourite -->
                 <form action="/favourites" method="POST" class="absolute top-3 right-3 z-10">
                   <input type="hidden" name="id" value="<%= home._id %>">
                   <input type="hidden" name="redirectTo" value="/">
@@ -86,34 +78,22 @@
                     </svg>
                   </button>
                 </form>
-
               <% } %>
-
             </div>
 
-            <!-- Home Details -->
             <div class="p-3">
-
-              <h3 class="text-base font-semibold mb-1 truncate">
-                <%= home.houseName %>
-              </h3>
-
-              <p class="text-gray-500 text-xs mb-2">
-                📍 <%= home.location %>
-              </p>
-
+              <h3 class="text-base font-semibold mb-1 truncate"><%= home.houseName %></h3>
+              <p class="text-gray-500 text-xs mb-2">📍 <%= home.location %></p>
               <p class="text-red-500 font-bold text-sm mb-3">
                 ₹<%= home.price %>
                 <span class="text-gray-500 font-normal text-xs">/ night</span>
               </p>
-
               <a
                 href="/homes/<%= home._id %>"
                 class="block text-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition"
               >
                 View Details
               </a>
-
             </div>
 
           </div>

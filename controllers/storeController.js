@@ -1,34 +1,74 @@
 const Home = require("../models/home");
 const User = require("../models/user");
+const Booking = require("../models/booking");
+
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 exports.getHomes = async (req, res, next) => {
   try {
-    console.log("HOME PAGE SESSION:", req.session.isLoggedIn);
-    console.log("HOME PAGE USER:", req.session.user);
+    const { location, minPrice, maxPrice, checkIn, checkOut } = req.query;
 
-    const registeredHomes = await Home.find();
+    const filter = {};
+
+    // Location (case-insensitive partial match)
+    if (location && location.trim()) {
+      filter.location = { $regex: escapeRegex(location.trim()), $options: "i" };
+    }
+
+    // Price range
+    const min = parseFloat(minPrice);
+    const max = parseFloat(maxPrice);
+    if (!isNaN(min) || !isNaN(max)) {
+      filter.price = {};
+      if (!isNaN(min)) filter.price.$gte = min;
+      if (!isNaN(max)) filter.price.$lte = max;
+    }
+
+    // Date availability: exclude homes with approved bookings that overlap
+    let dateError = null;
+    const checkInDate = checkIn ? new Date(checkIn) : null;
+    const checkOutDate = checkOut ? new Date(checkOut) : null;
+    const hasDates = checkInDate && checkOutDate && !isNaN(checkInDate) && !isNaN(checkOutDate);
+
+    if (hasDates && checkOutDate <= checkInDate) {
+      dateError = "Check-out must be after check-in";
+    } else if (hasDates) {
+      const blockedBookings = await Booking.find({
+        status: "approved",
+        checkInDate: { $lt: checkOutDate },
+        checkOutDate: { $gt: checkInDate }
+      }).select("homeId");
+
+      filter._id = { $nin: blockedBookings.map(b => b.homeId) };
+    }
+
+    const registeredHomes = await Home.find(filter);
 
     let favouriteIds = [];
-
     if (req.session.isLoggedIn && req.session.user?.id) {
-      const user = await User.findById(req.session.user.id)
-        .select("favourites");
-
+      const user = await User.findById(req.session.user.id).select("favourites");
       if (user) {
-        favouriteIds = user.favourites.map(
-          id => id.toString()
-        );
+        favouriteIds = user.favourites.map(id => id.toString());
       }
     }
 
     res.render("store/home", {
-      registeredHomes,
-      favouriteIds,
-      pageTitle: "Stayora",
-      currentPage: "home",
-      user: req.session.user,
-      isLoggedIn: req.session.isLoggedIn,
-    });
+        registeredHomes,
+        favouriteIds,
+        filters: {
+            location: location || "",
+            minPrice: minPrice || "",
+            maxPrice: maxPrice || "",
+            checkIn: checkIn || "",
+            checkOut: checkOut || ""
+        },
+        today: new Date().toISOString().split("T")[0],
+        dateError,
+        pageTitle: "Stayora",
+        currentPage: "home",
+        user: req.session.user,
+        isLoggedIn: req.session.isLoggedIn,
+        });
 
   } catch (err) {
     next(err);
