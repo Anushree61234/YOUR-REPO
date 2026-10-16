@@ -5,36 +5,24 @@
 
   <!-- Page Header -->
   <section class="max-w-6xl mx-auto px-6 pt-10">
-
-    <h1 class="text-4xl font-bold text-gray-900">
-      Explore Homes
-    </h1>
-
+    <h1 class="text-4xl font-bold text-gray-900">Explore Homes</h1>
     <p class="text-gray-600 mt-2">
       Discover beautiful homes listed by our hosts and book your perfect stay.
     </p>
-
   </section>
 
   <!-- Homes Section -->
   <section class="max-w-6xl mx-auto px-6 py-8">
 
     <div class="flex justify-between items-center mb-6">
-
       <div>
-        <h2 class="text-2xl font-bold">
-          Available Homes
-        </h2>
-
-        <p class="text-gray-500 text-sm">
-          Choose from our latest listings.
-        </p>
+        <h2 class="text-2xl font-bold">Available Homes</h2>
+        <p class="text-gray-500 text-sm">Choose from our latest listings.</p>
       </div>
 
       <span class="bg-red-100 text-red-600 px-4 py-2 rounded-full font-semibold">
         <%= registeredHomes.length %> Home<%= registeredHomes.length === 1 ? '' : 's' %>
       </span>
-
     </div>
 
     <% if (registeredHomes.length === 0) { %>
@@ -45,74 +33,86 @@
 
     <% } else { %>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
 
-        <% registeredHomes.forEach((home) => { %>
+        <% registeredHomes.forEach((home) => {
+          const isFavourite = (favouriteIds || []).includes(home._id.toString());
+        %>
 
+          <!-- Home Card -->
           <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
 
-            <img
-              src="<%= home.photo %>"
-              alt="<%= home.houseName %>"
-              class="w-full h-48 object-cover"
-              onerror="this.src='https://placehold.co/400x300?text=No+Image'"
-            >
+            <!-- Image Container -->
+            <div class="relative">
 
-            <div class="p-4">
+              <img
+                src="<%= home.photo || 'https://placehold.co/400x300?text=No+Image' %>"
+                alt="<%= home.houseName || 'Home' %>"
+                class="w-full h-40 object-cover"
+                onerror="this.onerror=null; this.src='https://placehold.co/400x300?text=No+Image';"
+              >
 
-              <h3 class="text-xl font-semibold mb-2">
-                <%= home.houseName %>
-              </h3>
+              <% if (isFavourite) { %>
 
-              <p class="text-gray-500 mb-3">
-                📍 <%= home.location %>
-              </p>
-
-              <p class="text-red-500 font-bold text-lg mb-4">
-                ₹<%= home.price %>
-                <span class="text-gray-500 font-normal text-sm">/ night</span>
-              </p>
-
-              <!-- Buttons -->
-              <div style="display: flex; gap: 20px; margin-top: 16px;">
-
-                <a
-                  href="/homes/<%= home._id %>"
-                  style="
-                    display: block;
-                    background-color: #3b82f6;
-                    color: white;
-                    padding: 10px 20px;
-                    border-radius: 8px;
-                    text-decoration: none;
-                    font-weight: 600;
-                  "
-                >
-                  View Details
-                </a>
-
-                <form
-                  action="/favourites/delete/<%= home._id %>"
-                  method="POST"
-                  onsubmit="return confirm('Remove from favourites?');"
-                >
+                <!-- Remove Favourite -->
+                <form action="/favourites/delete/<%= home._id %>" method="POST" class="absolute top-3 right-3 z-10">
+                  <input type="hidden" name="redirectTo" value="/">
                   <button
                     type="submit"
-                    style="
-                      background-color: #ef4444;
-                      color: white;
-                      padding: 10px 20px;
-                      border-radius: 8px;
-                      border: none;
-                      font-weight: 600;
-                      cursor: pointer;
-                    "
+                    aria-label="Remove from favourites"
+                    title="Remove from favourites"
+                    class="bg-black/20 rounded-full w-10 h-10 flex items-center justify-center hover:scale-110 transition"
                   >
-                    Remove
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-7 h-7" fill="#ff385c" stroke="white" stroke-width="1.5">
+                      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" stroke-linejoin="round"/>
+                    </svg>
                   </button>
                 </form>
 
-              </div>
+              <% } else { %>
+
+                <!-- Add Favourite -->
+                <form action="/favourites" method="POST" class="absolute top-3 right-3 z-10">
+                  <input type="hidden" name="id" value="<%= home._id %>">
+                  <input type="hidden" name="redirectTo" value="/">
+                  <button
+                    type="submit"
+                    aria-label="Add to favourites"
+                    title="Add to favourites"
+                    class="bg-black/20 rounded-full w-10 h-10 flex items-center justify-center hover:scale-110 transition"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-7 h-7" fill="rgba(0,0,0,0.35)" stroke="white" stroke-width="1.8">
+                      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </form>
+
+              <% } %>
+
+            </div>
+
+            <!-- Home Details -->
+            <div class="p-3">
+
+              <h3 class="text-base font-semibold mb-1 truncate">
+                <%= home.houseName %>
+              </h3>
+
+              <p class="text-gray-500 text-xs mb-2">
+                📍 <%= home.location %>
+              </p>
+
+              <p class="text-red-500 font-bold text-sm mb-3">
+                ₹<%= home.price %>
+                <span class="text-gray-500 font-normal text-xs">/ night</span>
+              </p>
+
+              <a
+                href="/homes/<%= home._id %>"
+                class="block text-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition"
+              >
+                View Details
+              </a>
 
             </div>
 
